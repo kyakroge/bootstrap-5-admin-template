@@ -34,6 +34,7 @@ import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import com.multibiz.hub.App
 import com.multibiz.hub.core.AccountStore
+import com.multibiz.hub.core.Avatars
 import com.multibiz.hub.core.Notifier
 import com.multibiz.hub.core.StatusBus
 import org.json.JSONObject
@@ -252,6 +253,12 @@ object SessionManager {
             "blob" -> {
                 val acc = AccountStore.account(app, slot) ?: return
                 Downloads.saveDataUrl(app, acc.name, o.optString("data"), o.optString("name"), o.optString("mime"))
+            }
+            "avatar" -> Avatars.update(app, slot, o.optString("url")) {
+                main.post {
+                    StatusBus.send(app, slot, null, null, avatarChanged = true)
+                    host?.onAvatarChanged()
+                }
             }
             "hb" -> {}
             "log" -> Log.d(TAG, "[js] ${o.optString("m")}")

@@ -14,4 +14,8 @@
     <style name="ToolbarSub" parent="TextAppearance.Material3.BodySmall">
         <item name="android:textColor">#E0FFFFFF</item>
     </style>
+    <style name="CircleImage">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

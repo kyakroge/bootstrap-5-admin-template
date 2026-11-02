@@ -30,6 +30,7 @@ object Housekeeping {
         Notifier.cancelAll(ctx, a.slot, all = true)
         Notifier.deleteAccountChannel(ctx, a)
         StatusBus.clear(a.slot)
+        Avatars.delete(ctx, a.slot)
         syncShortcuts(ctx)
         KeepAliveService.start(ctx) // unbinds the removed slot (or stops if none left)
         // Ask the account process to log out locally, wipe its storage and exit.
@@ -52,6 +53,13 @@ object Housekeeping {
             dir.listFiles()?.filter { it.name.contains(key) }?.forEach { it.deleteRecursively() }
         }
         File(ctx.dataDir, "shared_prefs/${Slots.prefsName(slot)}.xml").delete()
+        Avatars.delete(ctx, slot)
+    }
+
+    private fun shortcutIcon(ctx: Context, a: Account): IconCompat {
+        val dp = Avatars.load(ctx, a.slot)
+        return if (dp != null) IconCompat.createWithBitmap(Avatars.circle(dp, 192))
+        else IconCompat.createWithAdaptiveBitmap(Badge.bitmap(a, 216, circle = false))
     }
 
     fun syncShortcuts(ctx: Context) {
@@ -60,7 +68,7 @@ object Housekeeping {
                 ShortcutInfoCompat.Builder(ctx, "acc_${a.slot}")
                     .setShortLabel(a.name)
                     .setLongLabel("Open ${a.name}")
-                    .setIcon(IconCompat.createWithAdaptiveBitmap(Badge.bitmap(a, 216, circle = false)))
+                    .setIcon(shortcutIcon(ctx, a))
                     .setIntent(
                         Intent(ctx, Slots.activity(a.slot)).setAction(Intent.ACTION_VIEW)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

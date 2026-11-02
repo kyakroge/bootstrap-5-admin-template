@@ -83,7 +83,7 @@ object Notifier {
     private fun builder(ctx: Context, a: Account, channel: String = a.channelId) =
         NotificationCompat.Builder(ctx, channel)
             .setSmallIcon(R.drawable.ic_stat_chat)
-            .setLargeIcon(Badge.bitmap(a))
+            .setLargeIcon(Badge.icon(ctx, a))
             .setColor(a.color)
             .setSubText(a.name)
             .setShowWhen(true)

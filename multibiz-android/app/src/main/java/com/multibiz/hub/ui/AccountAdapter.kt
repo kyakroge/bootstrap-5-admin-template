@@ -9,7 +9,9 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.multibiz.hub.R
+import com.google.android.material.imageview.ShapeableImageView
 import com.multibiz.hub.core.Account
+import com.multibiz.hub.core.Avatars
 import com.multibiz.hub.core.StatusBus
 
 class AccountAdapter(
@@ -27,6 +29,7 @@ class AccountAdapter(
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
         val badge: TextView = v.findViewById(R.id.badge)
+        val avatar: ShapeableImageView = v.findViewById(R.id.avatar)
         val name: TextView = v.findViewById(R.id.name)
         val status: TextView = v.findViewById(R.id.status)
         val unread: TextView = v.findViewById(R.id.unread)
@@ -43,6 +46,17 @@ class AccountAdapter(
         val ctx = h.itemView.context
         h.badge.text = a.initials
         h.badge.backgroundTintList = ColorStateList.valueOf(a.color)
+        val dp = Avatars.load(ctx, a.slot)
+        if (dp != null) {
+            h.avatar.setImageBitmap(dp)
+            h.avatar.strokeColor = ColorStateList.valueOf(a.color)
+            h.avatar.visibility = View.VISIBLE
+            h.badge.visibility = View.INVISIBLE
+        } else {
+            h.avatar.setImageDrawable(null)
+            h.avatar.visibility = View.GONE
+            h.badge.visibility = View.VISIBLE
+        }
         h.name.text = a.name
         val (text, colorRes) = when (s.state) {
             StatusBus.STATE_READY -> ctx.getString(R.string.status_ready) to R.color.status_ok

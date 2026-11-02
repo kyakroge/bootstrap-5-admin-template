@@ -142,12 +142,74 @@
     } catch (e) {}
     return 'loading';
   }
+  // ---- own profile photo (DP) -> shown on the MultiBiz home screen
+  var lastAvatar = '';
+  function ownUser() {
+    try {
+      var v = localStorage.getItem('last-wid-md') || localStorage.getItem('last-wid') || '';
+      v = v.replace(/"/g, '');
+      if (!v) return '';
+      return v.split('@')[0].split(':')[0];
+    } catch (e) { return ''; }
+  }
+  function avatarFromIdb(cb) {
+    var user = ownUser();
+    if (!user || !window.indexedDB) return cb('');
+    var done = false;
+    function finish(u) { if (!done) { done = true; cb(u || ''); } }
+    var req;
+    try { req = indexedDB.open('model-storage'); } catch (e) { return finish(''); }
+    req.onupgradeneeded = function () { try { req.transaction.abort(); } catch (e) {} }; // never create the DB
+    req.onerror = function () { finish(''); };
+    req.onblocked = function () { finish(''); };
+    req.onsuccess = function () {
+      var db = req.result;
+      try {
+        if (!db.objectStoreNames.contains('profile-pic-thumb')) { db.close(); return finish(''); }
+        var st = db.transaction('profile-pic-thumb', 'readonly').objectStore('profile-pic-thumb');
+        var keys = [user + '@c.us', user + '@s.whatsapp.net'], i = 0;
+        (function next() {
+          if (i >= keys.length) { db.close(); return finish(''); }
+          var g = st.get(keys[i++]);
+          g.onsuccess = function () {
+            var r = g.result, u = r && (r.eurl || r.previewEurl);
+            if (u) { db.close(); finish(String(u)); } else next();
+          };
+          g.onerror = function () { next(); };
+        })();
+      } catch (e) { try { db.close(); } catch (x) {} finish(''); }
+    };
+  }
+  function avatarFromDom() {
+    try {
+      var imgs = document.querySelectorAll(
+        'header img, [role="navigation"] img, [aria-label="Profile" i] img, [title="Profile" i] img');
+      for (var i = 0; i < imgs.length; i++) {
+        var im = imgs[i];
+        if (im.closest('#pane-side, #main, [role="dialog"], [role="listitem"], [role="row"]')) continue;
+        if (/^https:\/\/[^/]*whatsapp\.net\//.test(im.src || '')) return im.src;
+      }
+    } catch (e) {}
+    return '';
+  }
+  function checkAvatar() {
+    if (lastState !== 'ready') return;
+    avatarFromIdb(function (u) {
+      u = u || avatarFromDom();
+      if (u && u !== lastAvatar) { lastAvatar = u; post({ t: 'avatar', url: u }); }
+    });
+  }
+
   function tick() {
     var m = /^\((\d+)\)/.exec(document.title || '');
     var c = m ? parseInt(m[1], 10) : 0;
     if (c !== lastUnread) { lastUnread = c; post({ t: 'unread', n: c }); }
     var st = detectState();
-    if (st !== lastState) { lastState = st; post({ t: 'state', s: st }); }
+    if (st !== lastState) {
+      lastState = st; post({ t: 'state', s: st });
+      if (st === 'ready') { setTimeout(checkAvatar, 4000); setTimeout(checkAvatar, 20000); }
+    }
+    if (ticks % 150 === 0) checkAvatar();
     if (++ticks % 30 === 0) post({ t: 'hb' });
   }
   setInterval(tick, 2000);

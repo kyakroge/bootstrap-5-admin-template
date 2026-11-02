@@ -8,6 +8,10 @@ import android.graphics.Typeface
 
 /** Colored circle with the account initials - used as notification large icon & shortcut icon. */
 object Badge {
+    /** Account's WhatsApp DP (circle) when known, otherwise the colored initials badge. */
+    fun icon(ctx: android.content.Context, account: Account, size: Int = 192): Bitmap =
+        Avatars.load(ctx, account.slot)?.let { Avatars.circle(it, size) } ?: bitmap(account, size)
+
     fun bitmap(account: Account, size: Int = 192, circle: Boolean = true): Bitmap {
         val b = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         val c = Canvas(b)

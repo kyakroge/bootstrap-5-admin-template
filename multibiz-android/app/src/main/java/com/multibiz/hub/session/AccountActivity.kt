@@ -127,13 +127,24 @@ abstract class AccountActivity : AppCompatActivity() {
         webContainer.postDelayed({ SessionManager.clickNotification(js) }, 300)
     }
 
+    fun onAvatarChanged() {
+        account?.let { applyAccount(it) }
+    }
+
     private fun applyAccount(a: Account) {
         toolbar.title = a.name
+        val px = (36 * resources.displayMetrics.density).toInt()
+        toolbar.logo = com.multibiz.hub.core.Avatars.load(this, a.slot)?.let {
+            android.graphics.drawable.BitmapDrawable(resources, com.multibiz.hub.core.Avatars.circle(it, px))
+        }
+        toolbar.logoDescription = a.name
         toolbar.setBackgroundColor(a.color)
         findViewById<View>(R.id.root).setBackgroundColor(a.color)
         progress.setIndicatorColor(ContextCompat.getColor(this, android.R.color.white))
         @Suppress("DEPRECATION")
-        setTaskDescription(ActivityManager.TaskDescription(a.name, null, a.color))
+        setTaskDescription(
+            ActivityManager.TaskDescription(a.name, com.multibiz.hub.core.Badge.icon(this, a, 128), a.color)
+        )
     }
 
     override fun onStart() {

@@ -39,6 +39,7 @@ abstract class SessionService : Service() {
     private fun wipe() {
         SessionManager.destroy()
         Notifier.cancelAll(this, App.slot, all = true)
+        com.multibiz.hub.core.Avatars.delete(this, App.slot)
         val main = Handler(Looper.getMainLooper())
         val finish = Runnable {
             stopSelf()

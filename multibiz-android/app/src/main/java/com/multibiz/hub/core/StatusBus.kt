@@ -19,6 +19,7 @@ object StatusBus {
     private const val EXTRA_SLOT = "slot"
     private const val EXTRA_UNREAD = "unread"
     private const val EXTRA_STATE = "state"
+    private const val EXTRA_AVATAR = "avatar"
 
     const val STATE_UNKNOWN = "unknown"
     const val STATE_LOADING = "loading"
@@ -26,7 +27,7 @@ object StatusBus {
     const val STATE_READY = "ready"
     const val STATE_OFFLINE = "offline"
 
-    data class Status(val unread: Int = 0, val state: String = STATE_UNKNOWN)
+    data class Status(val unread: Int = 0, val state: String = STATE_UNKNOWN, val avatarVersion: Int = 0)
 
     private val map = ConcurrentHashMap<Int, Status>()
     private val listeners = CopyOnWriteArraySet<() -> Unit>()
@@ -48,7 +49,9 @@ object StatusBus {
             val old = get(slot)
             val unread = intent.getIntExtra(EXTRA_UNREAD, -1).let { if (it < 0) old.unread else it }
             val state = intent.getStringExtra(EXTRA_STATE) ?: old.state
-            map[slot] = Status(unread, state)
+            val avatarChanged = intent.getBooleanExtra(EXTRA_AVATAR, false)
+            map[slot] = Status(unread, state, old.avatarVersion + if (avatarChanged) 1 else 0)
+            if (avatarChanged) Housekeeping.syncShortcuts(context)
             dispatch()
         }
     }
@@ -61,8 +64,9 @@ object StatusBus {
     }
 
     /** Called from an account process. */
-    fun send(ctx: Context, slot: Int, unread: Int?, state: String?) {
+    fun send(ctx: Context, slot: Int, unread: Int?, state: String?, avatarChanged: Boolean = false) {
         val i = Intent(ACTION).setPackage(ctx.packageName).putExtra(EXTRA_SLOT, slot)
+        if (avatarChanged) i.putExtra(EXTRA_AVATAR, true)
         if (unread != null) i.putExtra(EXTRA_UNREAD, unread)
         if (state != null) i.putExtra(EXTRA_STATE, state)
         ctx.sendBroadcast(i)
