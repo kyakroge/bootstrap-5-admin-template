@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MultiBiz" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/brand</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+    <style name="Theme.MultiBiz.Account" parent="Theme.MultiBiz" />
+    <style name="ToolbarText" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    <style name="ToolbarSub" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">#E0FFFFFF</item>
+    </style>
+</resources>

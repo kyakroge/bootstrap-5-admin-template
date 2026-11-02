@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_reload" android:icon="@drawable/ic_refresh" android:title="@string/menu_reload" app:iconTint="@android:color/white" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_layout" android:title="@string/menu_layout" />
+    <item android:id="@+id/action_notifications" android:title="@string/menu_notifications" />
+    <item android:id="@+id/action_help" android:title="@string/menu_help" />
+    <item android:id="@+id/action_dashboard" android:title="@string/menu_dashboard" />
+</menu>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <application
+        android:name=".App"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MultiBiz"
+        android:usesCleartextTraffic="false">
+
+        <!-- Dashboard (main process) -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            Every account lives in its OWN process (:wa1 ... :wa5).
+            That gives each account a fully isolated WebView data directory
+            (cookies, IndexedDB, local storage), so sessions can never mix,
+            and a crash in one account cannot take the others down.
+        -->
+        <activity android:name=".session.AccountActivity1" android:process=":wa1" android:taskAffinity="com.multibiz.hub.wa1" android:launchMode="singleTask" android:exported="false" android:theme="@style/Theme.MultiBiz.Account" android:windowSoftInputMode="adjustResize" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale" />
+        <activity android:name=".session.AccountActivity2" android:process=":wa2" android:taskAffinity="com.multibiz.hub.wa2" android:launchMode="singleTask" android:exported="false" android:theme="@style/Theme.MultiBiz.Account" android:windowSoftInputMode="adjustResize" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale" />
+        <activity android:name=".session.AccountActivity3" android:process=":wa3" android:taskAffinity="com.multibiz.hub.wa3" android:launchMode="singleTask" android:exported="false" android:theme="@style/Theme.MultiBiz.Account" android:windowSoftInputMode="adjustResize" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale" />
+        <activity android:name=".session.AccountActivity4" android:process=":wa4" android:taskAffinity="com.multibiz.hub.wa4" android:launchMode="singleTask" android:exported="false" android:theme="@style/Theme.MultiBiz.Account" android:windowSoftInputMode="adjustResize" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale" />
+        <activity android:name=".session.AccountActivity5" android:process=":wa5" android:taskAffinity="com.multibiz.hub.wa5" android:launchMode="singleTask" android:exported="false" android:theme="@style/Theme.MultiBiz.Account" android:windowSoftInputMode="adjustResize" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale" />
+
+        <service android:name=".session.SessionService1" android:process=":wa1" android:exported="false" android:stopWithTask="false" />
+        <service android:name=".session.SessionService2" android:process=":wa2" android:exported="false" android:stopWithTask="false" />
+        <service android:name=".session.SessionService3" android:process=":wa3" android:exported="false" android:stopWithTask="false" />
+        <service android:name=".session.SessionService4" android:process=":wa4" android:exported="false" android:stopWithTask="false" />
+        <service android:name=".session.SessionService5" android:process=":wa5" android:exported="false" android:stopWithTask="false" />
+
+        <!-- One foreground service keeps all account processes alive for notifications. -->
+        <service
+            android:name=".core.KeepAliveService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keeps the user's linked business chat sessions connected so incoming message notifications are delivered in real time." />
+        </service>
+
+        <receiver
+            android:name=".core.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
