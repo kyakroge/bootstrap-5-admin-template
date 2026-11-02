@@ -195,10 +195,10 @@ class MainActivity : AppCompatActivity() {
                 .show()
             return
         }
-        AccountDialog.show(this, null, nextColor()) { name, color ->
+        AccountDialog.show(this, null, nextColor()) { name, color, desc ->
             AccountStore.validateName(this, name)?.let { return@show it }
             try {
-                val a = AccountStore.add(this, name, color)
+                val a = AccountStore.add(this, name, color, desc)
                 Housekeeping.onAccountAdded(this, a)
                 refresh()
                 open(a)
@@ -228,10 +228,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun edit(a: Account) {
-        AccountDialog.show(this, a, a.color) { name, color ->
+        AccountDialog.show(this, a, a.color) { name, color, desc ->
             AccountStore.validateName(this, name, a.slot)?.let { return@show it }
             try {
-                val updated = a.copy(name = name, color = color)
+                val updated = a.copy(name = name, color = color, description = desc)
                 AccountStore.update(this, updated)
                 Housekeeping.onAccountChanged(this, updated)
                 refresh()

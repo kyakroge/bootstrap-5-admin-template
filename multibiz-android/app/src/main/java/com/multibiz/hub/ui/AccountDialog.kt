@@ -20,11 +20,12 @@ object AccountDialog {
     )
 
     /** [onSave] returns an error message to keep the dialog open, or null on success. */
-    fun show(activity: AppCompatActivity, existing: Account?, suggestedColor: Int, onSave: (String, Int) -> String?) {
+    fun show(activity: AppCompatActivity, existing: Account?, suggestedColor: Int, onSave: (String, Int, String) -> String?) {
         val v = activity.layoutInflater.inflate(R.layout.dialog_account, null)
         val layout = v.findViewById<TextInputLayout>(R.id.nameLayout)
         val input = v.findViewById<TextInputEditText>(R.id.nameInput)
         val group = v.findViewById<ChipGroup>(R.id.colorGroup)
+        val descInput = v.findViewById<TextInputEditText>(R.id.descInput)
         val selected = existing?.color ?: suggestedColor
 
         COLORS.forEach { c ->
@@ -42,7 +43,11 @@ object AccountDialog {
         }
         if (group.checkedChipId == View.NO_ID) (group.getChildAt(0) as Chip).isChecked = true
 
-        existing?.let { input.setText(it.name); input.setSelection(it.name.length) }
+        existing?.let {
+            input.setText(it.name)
+            input.setSelection(it.name.length)
+            descInput.setText(it.description)
+        }
 
         val dialog = MaterialAlertDialogBuilder(activity)
             .setTitle(if (existing == null) R.string.add_account else R.string.edit_account)
@@ -55,7 +60,8 @@ object AccountDialog {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val name = input.text?.toString()?.trim().orEmpty()
                 val color = group.findViewById<Chip>(group.checkedChipId)?.tag as? Int ?: COLORS[0]
-                val err = onSave(name, color)
+                val desc = descInput.text?.toString()?.trim().orEmpty()
+                val err = onSave(name, color, desc)
                 if (err == null) dialog.dismiss() else layout.error = err
             }
         }

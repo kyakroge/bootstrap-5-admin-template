@@ -20,10 +20,30 @@
             android:id="@+id/nameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:imeOptions="actionDone"
+            android:imeOptions="actionNext"
             android:inputType="textCapWords"
             android:maxLength="30"
             android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/descLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/account_description"
+        app:counterEnabled="true"
+        app:counterMaxLength="80"
+        app:helperText="@string/account_description_help">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/descInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxLength="80"
+            android:maxLines="3" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView

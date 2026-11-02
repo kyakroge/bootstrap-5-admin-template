@@ -10,7 +10,9 @@ data class Account(
     val slot: Int,
     val name: String,
     val color: Int,
-    val createdAt: Long
+    val createdAt: Long,
+    /** Optional note about what this account is used for (e.g. "Sales enquiries"). */
+    val description: String = ""
 ) {
     /** New channel per account instance => fresh sound/settings when a slot is reused. */
     val channelId: String get() = "acc_${slot}_$createdAt"
@@ -40,6 +42,7 @@ data class AppSettings(
 object AccountStore {
     private const val FILE = "accounts.json"
     private const val MAX_NAME = 30
+    const val MAX_DESCRIPTION = 80
     private val lock = Any()
 
     private data class Data(val accounts: List<Account>, val settings: AppSettings)
@@ -59,7 +62,10 @@ object AccountStore {
                 val j = arr.optJSONObject(i) ?: return@mapNotNull null
                 val slot = j.optInt("slot")
                 if (slot !in 1..Slots.MAX) null
-                else Account(slot, j.optString("name"), j.optInt("color"), j.optLong("createdAt"))
+                else Account(
+                    slot, j.optString("name"), j.optInt("color"), j.optLong("createdAt"),
+                    j.optString("description")
+                )
             }.distinctBy { it.slot }.sortedBy { it.slot }
             val s = o.optJSONObject("settings")
             Data(
@@ -80,7 +86,7 @@ object AccountStore {
         d.accounts.forEach {
             arr.put(
                 JSONObject()
-                    .put("slot", it.slot).put("name", it.name)
+                    .put("slot", it.slot).put("name", it.name).put("description", it.description)
                     .put("color", it.color).put("createdAt", it.createdAt)
             )
         }
@@ -99,6 +105,9 @@ object AccountStore {
             throw e
         }
     }
+
+    private fun cleanDescription(d: String) =
+        d.replace(Regex("\\s+"), " ").trim().take(MAX_DESCRIPTION)
 
     fun accounts(ctx: Context): List<Account> = read(ctx).accounts
     fun account(ctx: Context, slot: Int): Account? = accounts(ctx).firstOrNull { it.slot == slot }
@@ -119,12 +128,12 @@ object AccountStore {
         return null
     }
 
-    fun add(ctx: Context, name: String, color: Int): Account = synchronized(lock) {
+    fun add(ctx: Context, name: String, color: Int, description: String = ""): Account = synchronized(lock) {
         val d = read(ctx)
         require(d.accounts.size < Slots.MAX) { "Maximum ${Slots.MAX} accounts allowed" }
         validateName(ctx, name)?.let { throw IllegalArgumentException(it) }
         val slot = (1..Slots.MAX).first { s -> d.accounts.none { it.slot == s } }
-        val a = Account(slot, name.trim(), color, System.currentTimeMillis())
+        val a = Account(slot, name.trim(), color, System.currentTimeMillis(), cleanDescription(description))
         write(ctx, d.copy(accounts = (d.accounts + a).sortedBy { it.slot }))
         a
     }
@@ -132,7 +141,7 @@ object AccountStore {
     fun update(ctx: Context, account: Account) = synchronized(lock) {
         val d = read(ctx)
         validateName(ctx, account.name, account.slot)?.let { throw IllegalArgumentException(it) }
-        write(ctx, d.copy(accounts = d.accounts.map { if (it.slot == account.slot) account.copy(name = account.name.trim()) else it }))
+        write(ctx, d.copy(accounts = d.accounts.map { if (it.slot == account.slot) account.copy(name = account.name.trim(), description = cleanDescription(account.description)) else it }))
     }
 
     fun remove(ctx: Context, slot: Int) = synchronized(lock) {

@@ -67,7 +67,9 @@ object Housekeeping {
             val list = AccountStore.accounts(ctx).map { a ->
                 ShortcutInfoCompat.Builder(ctx, "acc_${a.slot}")
                     .setShortLabel(a.name)
-                    .setLongLabel("Open ${a.name}")
+                    .setLongLabel(
+                        if (a.description.isNotBlank()) "${a.name} – ${a.description}".take(60) else "Open ${a.name}"
+                    )
                     .setIcon(shortcutIcon(ctx, a))
                     .setIntent(
                         Intent(ctx, Slots.activity(a.slot)).setAction(Intent.ACTION_VIEW)

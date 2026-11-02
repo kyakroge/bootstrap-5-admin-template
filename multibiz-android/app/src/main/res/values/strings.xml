@@ -3,8 +3,10 @@
     <string name="app_name">MultiBiz</string>
     <string name="add_account">Add business account</string>
     <string name="add_account_count">Add account (%1$d/%2$d)</string>
-    <string name="edit_account">Rename / change color</string>
+    <string name="edit_account">Edit name, description &amp; color</string>
     <string name="account_name">Account name (e.g. Sharma Electronics)</string>
+    <string name="account_description">Description (optional)</string>
+    <string name="account_description_help">What is this account for? e.g. Sales enquiries, Course students</string>
     <string name="account_color">Color (shown in notifications)</string>
     <string name="save">Save</string>
     <string name="open">Open</string>

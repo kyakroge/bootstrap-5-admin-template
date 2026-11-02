@@ -32,6 +32,7 @@ class AccountAdapter(
         val avatar: ShapeableImageView = v.findViewById(R.id.avatar)
         val name: TextView = v.findViewById(R.id.name)
         val status: TextView = v.findViewById(R.id.status)
+        val description: TextView = v.findViewById(R.id.description)
         val unread: TextView = v.findViewById(R.id.unread)
         val more: ImageButton = v.findViewById(R.id.more)
     }
@@ -58,6 +59,8 @@ class AccountAdapter(
             h.badge.visibility = View.VISIBLE
         }
         h.name.text = a.name
+        h.description.text = a.description
+        h.description.visibility = if (a.description.isBlank()) View.GONE else View.VISIBLE
         val (text, colorRes) = when (s.state) {
             StatusBus.STATE_READY -> ctx.getString(R.string.status_ready) to R.color.status_ok
             StatusBus.STATE_QR -> ctx.getString(R.string.status_qr_short) to R.color.status_warn
