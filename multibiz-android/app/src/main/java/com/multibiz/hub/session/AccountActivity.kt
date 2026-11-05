@@ -45,6 +45,9 @@ abstract class AccountActivity : AppCompatActivity() {
     private lateinit var helpBar: TextView
     private lateinit var lockOverlay: View
     private var account: Account? = null
+    private val grabber by lazy { GroupGrabber(this) }
+
+    fun onGrabberMessage(o: org.json.JSONObject) = grabber.onMessage(o)
 
     private var pendingFileCallback: ValueCallback<Array<Uri>>? = null
     private val fileLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
@@ -98,6 +101,7 @@ abstract class AccountActivity : AppCompatActivity() {
         toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_reload -> SessionManager.reload()
+                R.id.action_grabber -> grabber.open()
                 R.id.action_layout -> chooseLayout()
                 R.id.action_notifications -> openChannelSettings()
                 R.id.action_help -> showHelp()
@@ -122,6 +126,10 @@ abstract class AccountActivity : AppCompatActivity() {
     }
 
     private fun handleIntent(i: Intent?) {
+        if (i?.getBooleanExtra(GroupGrabber.EXTRA_OPEN, false) == true) {
+            i.removeExtra(GroupGrabber.EXTRA_OPEN)
+            webContainer.postDelayed({ grabber.open() }, 600)
+        }
         val js = i?.getStringExtra(Notifier.EXTRA_JS_ID) ?: return
         i.removeExtra(Notifier.EXTRA_JS_ID)
         webContainer.postDelayed({ SessionManager.clickNotification(js) }, 300)

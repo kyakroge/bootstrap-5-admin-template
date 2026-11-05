@@ -45,6 +45,11 @@
     <string name="menu_secure">Hide content in recents &amp; block screenshots</string>
     <string name="menu_battery">Background running</string>
     <string name="menu_help">How to link an account</string>
+    <string name="menu_grabber">Group Grabber (export to Excel)</string>
+    <string name="group_search">Search groups</string>
+    <string name="select_all">Select all</string>
+    <string name="grabber_note">Members → one Excel file per group, named after the group. Chats → "Group name - Chat.xlsx". Saved in Downloads/MultiBiz/&lt;Account&gt;/Groups.
+Tip: message only people who agreed to hear from you – WhatsApp bans numbers that bulk-message strangers.</string>
     <string name="menu_reload">Reload</string>
     <string name="menu_layout">Layout width</string>
     <string name="menu_notifications">Notification sound for this account</string>

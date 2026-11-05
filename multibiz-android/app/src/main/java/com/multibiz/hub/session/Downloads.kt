@@ -71,6 +71,42 @@ object Downloads {
         }
     }
 
+    /**
+     * Saves bytes to Downloads/MultiBiz/<subPath>/<name>. Returns a content Uri that can be
+     * opened/shared (Android 10+), or null on Android 9 (file still saved). Throws on failure.
+     */
+    fun saveBytes(ctx: Context, subPath: String, name: String, mime: String, bytes: ByteArray): Uri? {
+        val folder = subPath.split('/').joinToString("/") { clean(it) }
+        if (Build.VERSION.SDK_INT >= 29) {
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+                put(MediaStore.MediaColumns.MIME_TYPE, mime)
+                put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/MultiBiz/$folder")
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
+            val resolver = ctx.contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: error("insert failed")
+            try {
+                resolver.openOutputStream(uri)!!.use { it.write(bytes) }
+            } catch (e: Exception) {
+                resolver.delete(uri, null, null)
+                throw e
+            }
+            values.clear()
+            values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+            resolver.update(uri, values, null, null)
+            return uri
+        }
+        write(ctx, folder, name, mime, bytes)
+        return null
+    }
+
+    /** Safe file name (keeps emoji / Hindi), never empty. */
+    fun fileName(base: String, ext: String): String {
+        val b = clean(base).trim().trimEnd('.').ifEmpty { "Group" }.take(100)
+        return "$b.$ext"
+    }
+
     fun enqueue(ctx: Context, url: String, ua: String?, cd: String?, mime: String?, account: String) {
         try {
             val name = clean(URLUtil.guessFileName(url, cd, mime))

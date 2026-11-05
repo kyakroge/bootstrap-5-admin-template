@@ -62,6 +62,7 @@ object SessionManager {
     private var wrapper: MutableContextWrapper? = null
     private var host: AccountActivity? = null
     private var injectScript = ""
+    private var grabberScript = ""
     private var docStartSupported = false
 
     private var loadFailed = false
@@ -131,6 +132,17 @@ object SessionManager {
         }
         webView = null
         wrapper = null
+    }
+
+    val currentState: String get() = state
+
+    /** Runs a Group Grabber command inside the page (loads grabber.js on first use). */
+    fun grab(call: String) {
+        val wv = webView ?: return
+        if (grabberScript.isEmpty()) {
+            grabberScript = app.assets.open("grabber.js").bufferedReader().use { it.readText() }
+        }
+        wv.evaluateJavascript("$grabberScript\n;$call", null)
     }
 
     fun reload() {
@@ -260,6 +272,7 @@ object SessionManager {
                     host?.onAvatarChanged()
                 }
             }
+            "grab" -> host?.onGrabberMessage(o)
             "hb" -> {}
             "log" -> Log.d(TAG, "[js] ${o.optString("m")}")
         }

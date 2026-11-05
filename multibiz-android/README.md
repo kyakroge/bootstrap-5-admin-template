@@ -18,6 +18,7 @@ Each account has a custom name and color, and **every notification says which ac
 | Background delivery | One silent foreground service keeps all account processes alive (`BIND_IMPORTANT`). It auto-starts after a reboot or app update. |
 | Self-healing | Auto-retry with backoff when offline, reload on network return, WebView renderer-crash recovery, and a watchdog for stuck or frozen pages. |
 | Logged-out alert | If a business unlinks this device, you get a "*Account X • Logged out*" alert. |
+| Group Grabber | Export the members of any group this account is in to Excel (one file per group, named after the group: number, saved name, WhatsApp name, role), and export group chats to Excel (`<Group name> - Chat.xlsx`: date, time, sender, number, message). Bulk select, search, progress and Stop, then Share/Open. Files go to `Downloads/MultiBiz/<Account>/Groups/`. |
 | Account description | Optional note per account (up to 80 chars, e.g. "Sales enquiries"), shown under the name on the home screen and in launcher shortcuts. |
 | Profile photos | Each account shows its own WhatsApp profile photo (DP) on the home screen, in notifications, in launcher shortcuts and in the account screen header, framed in the account color. |
 | Dashboard | Unread count and status (Connected / Not linked / Offline) for every account. |
@@ -64,6 +65,7 @@ You can also open the `multibiz-android` folder in Android Studio and press Run.
 
 - `minSdk 28` (Android 9+), `targetSdk 35` (Android 15).
 - Package: `com.multibiz.hub`.
+- Debug builds are signed with the committed `app/debug.keystore`, so a new build installs over the old one without logging accounts out.
 
 ## Code map
 

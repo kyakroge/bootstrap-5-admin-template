@@ -214,13 +214,20 @@ class MainActivity : AppCompatActivity() {
         pm.menu.add(0, 1, 0, R.string.open)
         pm.menu.add(0, 2, 1, R.string.edit_account)
         pm.menu.add(0, 3, 2, R.string.notification_sound)
-        pm.menu.add(0, 4, 3, R.string.remove_account)
+        pm.menu.add(0, 5, 3, R.string.menu_grabber)
+        pm.menu.add(0, 4, 4, R.string.remove_account)
         pm.setOnMenuItemClickListener {
             when (it.itemId) {
                 1 -> open(a)
                 2 -> edit(a)
                 3 -> openChannelSettings(a)
                 4 -> confirmRemove(a)
+                5 -> startActivity(
+                    Intent(this, Slots.activity(a.slot))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .putExtra(LockGate.EXTRA_UNLOCKED, !LockGate.isLocked(this))
+                        .putExtra(com.multibiz.hub.session.GroupGrabber.EXTRA_OPEN, true)
+                )
             }
             true
         }
